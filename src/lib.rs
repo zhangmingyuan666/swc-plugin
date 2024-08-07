@@ -53,7 +53,10 @@ impl VisitMut for TransformVisitor {
                     body: Box::new(BlockStmtOrExpr::BlockStmt(BlockStmt {
                         span: DUMMY_SP,
                         ctxt: SyntaxContext::from_u32(3),
-                        stmts: vec![]
+                        stmts: vec![Stmt::Return(ReturnStmt {
+                            span: DUMMY_SP,
+                            arg: None
+                        }) ]
                     }))
                 }))
             }
