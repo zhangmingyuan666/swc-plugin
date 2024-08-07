@@ -9,6 +9,7 @@ use swc_core::common::SyntaxContext;
 use std::{ptr::null, sync::Arc};
 use swc_core::common::SourceMap;
 use swc_ecma_codegen::{Emitter, text_writer::JsWriter};
+use swc_ecma_utils::{quote_ident};
 
 
 pub struct TransformVisitor;
@@ -60,18 +61,31 @@ impl VisitMut for TransformVisitor {
                                     span: DUMMY_SP,
                                     ctxt: SyntaxContext::from_u32(3),
                                     type_args: None,
-                                    callee: Callee::Import(Import {
+                                    args: vec![],
+                                    callee: Callee::Expr(Box::new(Expr::Member(MemberExpr {
                                         span: DUMMY_SP,
-                                        phase: ImportPhase::Evaluation,
-                                    }),
-                                    args: vec![ExprOrSpread {
-                                        spread: None,
-                                        expr: Box::new(Expr::Lit(Lit::Str((Str {
+                                        obj: Box::new(Expr::Call(CallExpr {
+                                            type_args: None,
                                             span: DUMMY_SP,
-                                            value: "1".into(),
-                                            raw: None
-                                        }))))
-                                    }],
+                                            ctxt: SyntaxContext::empty(),
+                                            callee: Callee::Import(Import {
+                                                span: DUMMY_SP,
+                                                phase: ImportPhase::Evaluation,
+                                            }),
+                                            args: vec![ExprOrSpread {
+                                                spread: None,
+                                                expr: Box::new(Expr::Lit(Lit::Str((Str {
+                                                    span: DUMMY_SP,
+                                                    value: "1".into(),
+                                                    raw: None
+                                                }))))
+                                            }],
+                                        })),
+                                        prop: MemberProp::Ident(quote_ident!("then")),
+                                })))
+                                    
+                                    
+                                 
                                 }
                             )))
                         }) ]
