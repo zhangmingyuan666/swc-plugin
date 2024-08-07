@@ -62,9 +62,16 @@ impl VisitMut for TransformVisitor {
                                     type_args: None,
                                     callee: Callee::Import(Import {
                                         span: DUMMY_SP,
-                                        phase: ImportPhase::Evaluation
+                                        phase: ImportPhase::Evaluation,
                                     }),
-                                    args: vec![],
+                                    args: vec![ExprOrSpread {
+                                        spread: None,
+                                        expr: Box::new(Expr::Lit(Lit::Str((Str {
+                                            span: DUMMY_SP,
+                                            value: "1".into(),
+                                            raw: None
+                                        }))))
+                                    }],
                                 }
                             )))
                         }) ]
