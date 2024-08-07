@@ -6,6 +6,11 @@ use swc_core::{common::DUMMY_SP, ecma::{
 use swc_core::ecma::atoms::JsWord;
 use swc_core::plugin::{plugin_transform, proxies::TransformPluginProgramMetadata};
 use swc_core::common::SyntaxContext;
+use std::{ptr::null, sync::Arc};
+use swc_core::common::SourceMap;
+use swc_ecma_codegen::{Emitter, text_writer::JsWriter};
+
+
 pub struct TransformVisitor;
 
 impl VisitMut for TransformVisitor {
@@ -26,18 +31,6 @@ impl VisitMut for TransformVisitor {
                 // 如果发现是此函数，要给
                 if ident.sym == *"s1sAsyncImport" {
                     should_wrap = Some(true)
-                    /* 
-                    *callee = Box::new(Expr::Arrow((ArrowExpr {
-                        span: DUMMY_SP,
-                        body: Box::new(BlockStmtOrExpr::Expr(Default::default())),
-                        is_async: false,
-                        params: vec![],
-                        is_generator: false,
-                        return_type: None,
-                        type_params: None,
-                        ctxt: SyntaxContext::empty(),
-                    })))
-                    */
                 }
             }
         }
@@ -45,16 +38,33 @@ impl VisitMut for TransformVisitor {
         match should_wrap {
             // 应该进行处理
             Some(true) => {
+                println!("True");
 
+                let init = e.init.as_mut().unwrap();
+
+                *init = Box::new(Expr::Arrow(ArrowExpr {
+                    span: DUMMY_SP,
+                    params: vec![],
+                    is_async: false,
+                    is_generator: false,
+                    type_params: None,
+                    return_type: None,
+                    ctxt: SyntaxContext::empty(),
+                    body: Box::new(BlockStmtOrExpr::BlockStmt(BlockStmt {
+                        span: DUMMY_SP,
+                        ctxt: SyntaxContext::from_u32(3),
+                        stmts: vec![]
+                    }))
+                }))
             }
 
             // 无需进行处理
             Some(false) => {
-
+                println!("False");
             }
 
             _ => {
-                
+                println!("False");
             }
         }
     }
@@ -90,5 +100,14 @@ test_inline!(
     simple_transform_global_var,
     // Input codes
     r#"let isDev = s1sAsyncImport(1);"#,
+    r#"let isDev = s1sAsyncImport(1);"#
+);
+
+test_inline!(
+    Default::default(),
+    |_| as_folder(TransformVisitor),
+    acllk,
+    // Input codes
+    r#"let isDev = test(1);"#,
     r#"let isDev = false;"#
 );
