@@ -10,6 +10,7 @@ use std::{ptr::null, sync::Arc};
 use swc_core::common::SourceMap;
 use swc_ecma_codegen::{Emitter, text_writer::JsWriter};
 use swc_ecma_utils::{quote_ident};
+use swc_core::common::comments;
 
 
 pub struct TransformVisitor;
@@ -61,7 +62,20 @@ impl VisitMut for TransformVisitor {
                                     span: DUMMY_SP,
                                     ctxt: SyntaxContext::from_u32(3),
                                     type_args: None,
-                                    args: vec![],
+                                    args: vec![ExprOrSpread {
+                                        spread: None,
+                                        expr: Box::new(Expr::Arrow(ArrowExpr {
+                                            span: DUMMY_SP,
+                                            ctxt: SyntaxContext::empty(),
+                                            
+                                            is_async: false,
+                                            is_generator: false,
+                                            type_params: None,
+                                            return_type: None,
+                                            body: Box::new(Ident::new(JsWord::from("res"), DUMMY_SP, SyntaxContext::empty()).into()),
+                                            params: vec![Ident::new(JsWord::from("res"), DUMMY_SP, SyntaxContext::empty()).into()],
+                                        })),
+                                    }],
                                     callee: Callee::Expr(Box::new(Expr::Member(MemberExpr {
                                         span: DUMMY_SP,
                                         obj: Box::new(Expr::Call(CallExpr {
@@ -85,7 +99,7 @@ impl VisitMut for TransformVisitor {
                                 })))
                                     
                                     
-                                 
+
                                 }
                             )))
                         }) ]
